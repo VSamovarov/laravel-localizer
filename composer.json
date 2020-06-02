@@ -46,7 +46,8 @@
                 "VSamovarov\\LaravelLocalizer\\LocalizerServiceProvider"
             ],
             "aliases": {
-                "Localizer": "VSamovarov\\LaravelLocalizer\\LocalizerFacade"
+                "Localizer": "VSamovarov\\LaravelLocalizer\\Facades\\Localizer",
+                "LocalizerRouter": "VSamovarov\\LaravelLocalizer\\Facades\\LocalizerRouter"
             }
         }
     }

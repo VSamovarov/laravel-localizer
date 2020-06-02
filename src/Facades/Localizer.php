@@ -1,13 +1,13 @@
 <?php
 
-namespace VSamovarov\LaravelLocalizer;
+namespace VSamovarov\LaravelLocalizer\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @see \VSamovarov\LaravelLocalizer\Skeleton\SkeletonClass
  */
-class LocalizerFacade extends Facade
+class Localizer extends Facade
 {
     /**
      * Get the registered name of the component.

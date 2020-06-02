@@ -2,9 +2,13 @@
 
 namespace VSamovarov\LaravelLocalizer;
 
+use Illuminate\Routing\Router;
 use VSamovarov\LaravelLocalizer\Localizer;
 use VSamovarov\LaravelLocalizer\LocalizerRouter;
 use Illuminate\Support\ServiceProvider;
+use VSamovarov\LaravelLocalizer\Middleware\DefaultLocaleRedirect;
+use VSamovarov\LaravelLocalizer\Middleware\LocalizationApi;
+use VSamovarov\LaravelLocalizer\Middleware\LocalizationWeb;
 
 class LocalizerServiceProvider extends ServiceProvider
 {
@@ -17,9 +21,13 @@ class LocalizerServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../config/config.php' => config_path('laravel-localizer.php'),
             ], 'config');
-
-            require_once(dirname(__FILE__, 2) . '/helpers.php');
         }
+        $router = $this->app->make(Router::class);
+        $router->aliasMiddleware('localizationWeb', LocalizationWeb::class);
+        $router->aliasMiddleware('defaultLocaleRedirect', DefaultLocaleRedirect::class);
+        $router->aliasMiddleware('LocalizationApi', LocalizationApi::class);
+
+        require_once('helpers.php');
     }
 
     /**
