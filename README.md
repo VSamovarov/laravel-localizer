@@ -24,7 +24,7 @@ composer require vsamovarov/laravel-localizer
 
 #### Группы для маршрутов
 
-Laravel Localizator создает группы для маршрутов, с предопределенными параметрами 'prefix' и 'as'.
+**Laravel Localizator** создает группы для маршрутов, с предопределенными параметрами 'prefix' и 'as'.
 
 Например:
 
