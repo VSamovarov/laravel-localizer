@@ -20,6 +20,10 @@
 composer require vsamovarov/laravel-localizer
 ```
 
+... опции
+```bash
+php artisan vendor:publish --provider="VSamovarov\LaravelLocalizer\LocalizerServiceProvider"
+```
 ## Usage
 
 #### Группы для маршрутов
