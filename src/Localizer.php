@@ -3,34 +3,9 @@
 namespace VSamovarov\LaravelLocalizer;
 
 use VSamovarov\LaravelLocalizer\Exceptions\ConfigLocalizerNotDefined;
-use VSamovarov\LaravelLocalizer\Exceptions\TranslateRouteException;
-use VSamovarov\LaravelLocalizer\Exceptions\UnsupportedLocaleException;
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Translation\Translator;
-
-
 
 class Localizer
 {
-    /**
-     * Имя файла для переводов роутеров
-     */
-    const NAME_LANGUAGE_FILE = 'routes';
-
-    /**
-     * Illuminate request class.
-     *
-     * @var Illuminate\Foundation\Application
-     */
-    private $app;
-
-    /**
-     * Illuminate translator class.
-     *
-     * @var \Illuminate\Translation\Translator
-     */
-    protected $translator;
-
     /**
      * Supported Locales
      *
@@ -54,15 +29,17 @@ class Localizer
      */
     protected $hideDefaultLocaleInURL = true;
 
-    public function __construct(Repository $config, Translator $translator)
+    public function __construct($config)
     {
-        $this->translator = $translator;
-
-        $this->setSupportedLocales($config['laravel-localizer.supportedLocales']);
-        $this->setDefaultLocale($config['app.locale']);
-        if ($config['laravel-localizer.hideDefaultLocaleInURL'] === false || $config['laravel-localizer.hideDefaultLocaleInURL'] === 0) {
-            $this->hideDefaultLocaleInURL = false;
+        if (empty($config) || !is_array($config)) {
+            throw new ConfigLocalizerNotDefined('Не задана конфигурация');
         }
+
+        $this->defaultLocale = current(array_keys($config['supportedLocales']));
+        $this->hideDefaultLocaleInURL = !empty($config['hideDefaultLocaleInURL']);
+
+        $this->setSupportedLocales($config['supportedLocales']);
+        $this->setLocale($this->defaultLocale);
     }
 
     /**
@@ -70,13 +47,21 @@ class Localizer
      *
      * @return array
      */
-
     public function setSupportedLocales($supportedLocales): void
     {
-        if (empty($supportedLocales) || !is_array($supportedLocales)) {
-            throw new ConfigLocalizerNotDefined('Не задана конфигурация');
+        /**
+         * Определяем префикс, который будет в URL
+         * Он может зависеть от параметра $hideDefaultLocaleInURL и настроек
+         */
+        foreach ($supportedLocales as $key => $value) {
+            $this->supportedLocales[$key] = array_merge(
+                $value,
+                [
+                    'slug' => $key,
+                    'prefix' => $this->getDefaultLocale() === $key && $this->isHideDefaultLocaleInURL() ? '' : $key
+                ]
+            );
         }
-        $this->supportedLocales = $supportedLocales;
     }
 
     /**
@@ -88,6 +73,7 @@ class Localizer
     {
         return $this->supportedLocales;
     }
+
     /**
      * is Supported Locale
      *
@@ -100,24 +86,11 @@ class Localizer
     }
 
     /**
-     * Устанавливаем локаль по умолчанию.
-     *
-     * @return string
-     */
-    public function setDefaultLocale(string $locale): void
-    {
-        if (!$this->isSupportedLocale($locale)) {
-            throw new UnsupportedLocaleException('Laravel default locale is not in the supportedLocales array');
-        }
-        $this->defaultLocale = $locale;
-    }
-    /**
      * Получаем локаль по умолчанию
      *
      * @return string
      */
-
-    public function getDefaultLocale(): string
+    public function getDefaultLocale()
     {
         return $this->defaultLocale;
     }
@@ -128,7 +101,7 @@ class Localizer
      * @param string $locale
      * @return void
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         if ($this->isSupportedLocale($locale)) {
             app()->setLocale($locale);
@@ -144,83 +117,6 @@ class Localizer
     public function getLocale(): string
     {
         return app()->getLocale();
-    }
-
-    /**
-     * Перевод роутера
-     *
-     * @param string $key
-     * @param string $group
-     * @return string
-     */
-    public function transRoute(string $key, string $group = self::NAME_LANGUAGE_FILE): string
-    {
-        $string = $key;
-        $locale = $this->getLocale();
-        if ($this->translator->has("{$group}.{$key}", $locale, false)) {
-            $string = $this->translator->get("{$group}.{$key}", [], $locale, false);
-            if ($this->compareRouteParameterStructure($key, $string) === false) {
-                throw new TranslateRouteException(
-                    'Bad structure of the translated router.'
-                        . ' Key: ' . $key
-                        . ', translation: ' . $string
-                        . ', local: ' . $locale
-                );
-            }
-        }
-        return $string;
-    }
-
-
-
-    /**
-     * Generate the URL to a named route.
-     *
-     * @param  string  $name
-     * @param  mixed  $parameters
-     * @param  string  $local
-     * @param  bool  $absolute
-     * @return string
-     */
-
-    public function localeRoute(string $name, $parameters = [], $local = '', $absolute = true): string
-    {
-        if (empty($local)) {
-            $local = $this->getLocale();
-        } else {
-            if (!$this->isSupportedLocale($local)) {
-                throw new UnsupportedLocaleException('Unsupported Locale');
-            }
-        }
-        return route("{$local}.{$name}", $parameters, $absolute);
-    }
-
-    /**
-     * Проверяем совпадает ли структура роутера с локализированным роутером
-     *
-     * @param string $routeParameter
-     * @param string $transString
-     * @return boolean
-     */
-    public function compareRouteParameterStructure(string $routeParameter, string $transString): bool
-    {
-        $routeParameter = explode('/', $routeParameter);
-        $transString = explode('/', $transString);
-        if (count($routeParameter) !== count($transString)) return false;
-
-        foreach ($routeParameter as $pos => $segment) {
-            if (strpos($segment, '{') !== false) {
-                //Есть подстановка, Должны быть равны
-                if ($transString[$pos] !== $segment) return false;
-            } else {
-                //нет подстановки в роутере, не должно быть и в строке
-                if (strpos($transString[$pos], '{') !== false) return false;
-                //Если не нулевая длина в роутере, должна быть не нулевой и в строке
-                if (strlen($segment) > 0 && strlen($transString[$pos]) == 0) return false;
-                if (strlen($segment) == 0 && strlen($transString[$pos]) > 0) return false;
-            }
-        }
-        return true;
     }
 
     /** Скрывать ли локаль по умолчанию в URL

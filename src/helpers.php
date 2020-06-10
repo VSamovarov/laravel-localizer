@@ -1,7 +1,7 @@
 <?php
 
 
-if (!function_exists('lroute')) {
+if (!function_exists('troute')) {
     /**
      * Возвращает переведенный именованный маршрут
      *
@@ -11,20 +11,21 @@ if (!function_exists('lroute')) {
      * @param boolean $absolute
      * @return string
      */
-    function lroute(string $name, $parameters = [], $local = '', $absolute = true)
+    function troute(string $name, $parameters = [], $local = '', $absolute = true): string
     {
-        return app('localizer')->localeRoute($name, $parameters, $local, $absolute);
+        return $name;
     }
 }
 
-if (!function_exists('localizerRouter')) {
-
-    function localizerRouter(\Closure $routes)
+if (!function_exists('translateUri')) {
+    /**
+     * Возвращает переведенный Url с помощью Translate
+     *
+     * @param string $uri
+     * @return string
+     */
+    function translateUri(string $uri): string
     {
-        app('localizerRouter')->group(
-            function () {
-                $routes;
-            }
-        );
+        return $uri;
     }
 }
