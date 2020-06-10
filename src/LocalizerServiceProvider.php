@@ -41,10 +41,8 @@ class LocalizerServiceProvider extends ServiceProvider
         });
         $this->app->alias(Localizer::class, 'localizer');
 
-        $this->app->singleton(LocalizedRoute::class, function ($app) {
-            return new LocalizedRoute($app['localizer'], $app['translator']);
-        });
-        $this->app->alias(LocalizedRoute::class, 'localizedRoute');
+        $this->app->singleton(RouteGroupLocalizer::class, RouteGroupLocalizer::class);
+        $this->app->alias(RouteGroupLocalizer::class, 'routeGroupLocalizer');
 
         Route::mixin(new RouteMacros);
     }
