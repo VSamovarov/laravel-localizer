@@ -7,6 +7,7 @@ use Illuminate\Routing\RouteCollectionInterface;
 use Illuminate\Routing\Router;
 use Illuminate\Translation\Translator;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
+use VSamovarov\LaravelLocalizer\Exceptions\NestedLocalizerRouteGroup;
 
 class RouteGroupLocalizer
 {
@@ -14,8 +15,7 @@ class RouteGroupLocalizer
     private $translator;
     private $route;
     private $request;
-    const LOCALIZER_NAME_PREFIX = 'localizer-';
-    const NAME_LANGUAGE_FILE = 'routes';
+
 
     public function __construct(Localizer $localizer, Translator $translator, Router $route, Request $request)
     {
@@ -39,7 +39,7 @@ class RouteGroupLocalizer
         foreach ($this->localizer->getSupportedLocales() as $lang) {
             $this->route->group([
                 'prefix' => $lang['prefix'],
-                'as' =>  self::LOCALIZER_NAME_PREFIX . $lang['slug'] . "."
+                'as' =>  $this->localizer->getNamePrefix() . "{$lang['slug']}."
             ], function () use ($attributes, $routes) {
                 $this->route->group($attributes, $routes);
             });
@@ -47,11 +47,37 @@ class RouteGroupLocalizer
 
         $routes = $this->route->getRoutes();
 
+        /**
+         * Локализующие группы, запрещено вкладывать друг в друга
+         */
+        if ($this->checkGroupNested($routes)) {
+            throw new NestedLocalizerRouteGroup();
+        }
+
         if (!app('localizer')->isHideDefaultLocaleInURL()) {
             $this->addMainRoute($routes);
         }
 
         $this->translateRoutes($routes);
+    }
+
+    /**
+     * Проверяем, есть ли вложения локализующих групп роутеров.
+     * Просто анализируем имя роутера.
+     * Если в нем несколько раз встречается префикс локализации,
+     * значит группа вложенная
+     *
+     * @param RouteCollectionInterface $routes
+     * @return boolean
+     */
+    public function checkGroupNested(RouteCollectionInterface $routes): bool
+    {
+        $locales = $this->localizer->getSlagsSupportedLocales();
+        $matchPattern =  '{' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ').*[.]' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ')[.]' . '}';
+        foreach (array_keys($routes->getRoutesByName()) as $name) {
+            if (preg_match($matchPattern, $name)) return true;
+        }
+        return false;
     }
 
     /**
@@ -91,29 +117,46 @@ class RouteGroupLocalizer
     }
 
     /**
-     * Локализирует УРЛы роутеров
+     * Локализирует роутеры
+     *
+     * Ищет роутеры с префиксом локалайзера и устанавливает новые (переведенные) урлы
      *
      * @param RouteCollectionInterface $routes
      * @return void
      */
     public function translateRoutes(RouteCollectionInterface $routes): void
     {
+        $prefix = $this->localizer->getNamePrefix();
         foreach ($routes as $route) {
             $name = $route->getName();
-            if (strpos($name, self::LOCALIZER_NAME_PREFIX) !== false) {
+
+            if (strpos($name, $prefix) !== false) {
                 // определяем локаль из имени роутера
                 $locale = substr(
                     substr($name, 0, strpos($name, '.')),
-                    strlen(self::LOCALIZER_NAME_PREFIX)
+                    strlen($this->localizer->getNamePrefix())
                 );
                 if ($locale) {
-                    $route->setUri($this->translateUri($route->uri(), $locale, self::NAME_LANGUAGE_FILE, $this->translator));
+                    $route->setUri(
+                        $this->translateUri($route->uri(), $locale, $this->localizer->getTranslationFileName(), $this->translator)
+                    );
                 }
             }
         }
     }
 
-
+    /**
+     * Локализирует УРЛы
+     *
+     * Переводится каждый сегмент отдельно.
+     * Если перевода сегмента нет, то остается прежний
+     *
+     * @param string $uri
+     * @param string $locale
+     * @param string $group
+     * @param TranslatorContract $translator
+     * @return string
+     */
     public function translateUri(string $uri, string $locale, string $group, TranslatorContract $translator): string
     {
         $parts = array_map(function ($part) use ($locale, $group, $translator) {

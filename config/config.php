@@ -15,7 +15,28 @@ return [
     // is identical with the same url with default locale.
     // For example, if `en` is default locale, then `/en/about` and `/about`
     // would be identical.
-
     'hideDefaultLocaleInURL' => false,
+
+    // Имя фйала с переводами, который размещается там же
+    // где и прочие языковые файлы
+    //
+    // Перевод должен быть отдельно для каждого сегмента Uri
+    // Например для 'home/about/article/{id}'
+    // return [
+    //      'home' => 'домашняя',
+    //      'about' => 'о нас',
+    //      'article' => 'статья',
+    // ];
+    // Получим 'домашняя/о нас/статья/{id}'
+    'translationFileName' => 'routes',
+
+    // Используется в атрибуте 'as',
+    // для наименования переведенных роутеров.
+    // К этому префиксу будет добавляться название локали
+    // Например, "localizer-ru"
+    //
+    // Доступ к именованному будет с помощью этого префикса
+    // Например, route('localizer-ru.user)
+    'localizerNamePrefix' => 'localizer-',
 
 ];

@@ -29,6 +29,20 @@ class Localizer
      */
     protected $hideDefaultLocaleInURL = true;
 
+    /**
+     * Имя фйала с переводами
+     *
+     * @var string
+     */
+    protected $translationFileName = 'routes';
+
+    /**
+     * Используется в атрибуте 'as'
+     *
+     * @var string
+     */
+    protected $localizerNamePrefix = 'localizer-';
+
     public function __construct($config)
     {
         if (empty($config) || !is_array($config)) {
@@ -37,6 +51,9 @@ class Localizer
 
         $this->defaultLocale = current(array_keys($config['supportedLocales']));
         $this->hideDefaultLocaleInURL = !empty($config['hideDefaultLocaleInURL']);
+
+        $this->translationFileName = empty($config['hideDefaultLocaleInURL']) ? $this->translationFileName : $config['hideDefaultLocaleInURL'];
+        $this->localizerNamePrefix = empty($config['localizerNamePrefix']) ? $this->localizerNamePrefix : $config['localizerNamePrefix'];
 
         $this->setSupportedLocales($config['supportedLocales']);
         $this->setLocale($this->defaultLocale);
@@ -69,9 +86,19 @@ class Localizer
      *
      * @return array
      */
-    public function getSupportedLocales()
+    public function getSupportedLocales(): array
     {
         return $this->supportedLocales;
+    }
+
+    /**
+     * Get slag Locales
+     *
+     * @return array
+     */
+    public function getSlagsSupportedLocales(): array
+    {
+        return array_column($this->supportedLocales, 'slug');
     }
 
     /**
@@ -127,5 +154,25 @@ class Localizer
     public function isHideDefaultLocaleInURL(): bool
     {
         return $this->hideDefaultLocaleInURL;
+    }
+
+    /**
+     * Имя фйала с переводами
+     *
+     * @return string
+     */
+    public function getTranslationFileName(): string
+    {
+        return $this->translationFileName;
+    }
+
+    /**
+     * Используется в атрибуте 'as'
+     *
+     * @return string
+     */
+    public function getNamePrefix(): string
+    {
+        return $this->localizerNamePrefix;
     }
 }
