@@ -49,6 +49,8 @@ class Localizer
             throw new ConfigLocalizerNotDefined('Не задана конфигурация');
         }
 
+
+
         $this->defaultLocale = current(array_keys($config['supportedLocales']));
         $this->hideDefaultLocaleInURL = !empty($config['hideDefaultLocaleInURL']);
 
@@ -75,7 +77,7 @@ class Localizer
                 $value,
                 [
                     'slug' => $key,
-                    'prefix' => $this->getDefaultLocale() === $key && $this->isHideDefaultLocaleInURL() ? '' : $key
+                    'prefix' => ($this->getDefaultLocale() === $key && $this->isHideDefaultLocaleInURL()) ? '' : $key
                 ]
             );
         }
