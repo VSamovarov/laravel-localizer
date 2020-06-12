@@ -5,12 +5,12 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/vsamovarov/laravel-localizer.svg?style=flat-square)](https://scrutinizer-ci.com/g/vsamovarov/laravel-localizer)
 [![Total Downloads](https://img.shields.io/packagist/dt/vsamovarov/laravel-localizer.svg?style=flat-square)](https://packagist.org/packages/vsamovarov/laravel-localizer)
 
-Простая локализация, с использованием встроенной функциональности Laravel. Значение локали извлекается из URL.
+Простая локализация Laravel. Значение локали извлекается из URL.
 
--   Поддерживает кеширование
--   Поддержка именованных маршрутов
--   Переводимые маршруты
--   Возможность скрыть локаль по умолчанию в URL
+- Переводимые маршруты
+- Возможность скрыть локаль по умолчанию в URL
+- Поддерживает кеширование
+- Поддержка именованных маршрутов
 
 ## Installation
 
@@ -26,17 +26,20 @@ php artisan vendor:publish --provider="VSamovarov\LaravelLocalizer\LocalizerServ
 ```
 ## Usage
 
-#### Группы для маршрутов
+### Группы для маршрутов
 
-**Laravel Localizator** создает группы для маршрутов, с предопределенными параметрами 'prefix' и 'as'.
+**Laravel Localizator** создает группы для маршрутов для каждой локали, с предопределенными параметрами 'prefix' и 'as'.
+
+Используется макрос, который делает синтаксис похожим на объявление группы роутеров.
 
 Например:
 
 _routes/web.php_
 
 ```php
-app('localizerRouter')->group(
+Route::localizedGroup([],
     function () {
+        Route::get('/','Controller@metod')->name('home');
         Route::get('article/about','Controller@metod')->name('about');
     }
 );
@@ -44,101 +47,115 @@ app('localizerRouter')->group(
 
 Создаст маршруты для предопределенных языков **en, ru, uk**
 
-| Method   | URI              | Name     |
-| -------- | ---------------- | -------- |
-| GET/HEAD | article/about    | en.about |
-| GET/HEAD | ru/article/about | ru.about |
-| GET/HEAD | uk/article/about | uk.about |
+| Method   | URI              | Name               |
+| -------- | ---------------- | ------------------ |
+| GET/HEAD | /                | localiser-en.home  |
+| GET/HEAD | ru               | localiser-ru.home  |
+| GET/HEAD | uk               | localiser-uk.home  |
+| GET/HEAD | article/about    | localiser-en.about |
+| GET/HEAD | ru/article/about | localiser-ru.about |
+| GET/HEAD | uk/article/about | localiser-uk.about |
 
-Так же можно использовать хелпер localizerRouter();
+
+Префикс языка в url по умолчанию скрывается.
+
+Изменить поведение можно с помощью опции `hideDefaultLocaleInURL` в файле конфигурации.
+
+Тогда создаются такие маршруты
+
+| Method   | URI              | Name               |
+| -------- | ---------------- | ------------------ |
+| GET/HEAD | en               | localiser-en.home  |
+| GET/HEAD | ru               | localiser-ru.home  |
+| GET/HEAD | uk               | localiser-uk.home  |
+| GET/HEAD | en/article/about | localiser-en.about |
+| GET/HEAD | ru/article/about | localiser-ru.about |
+| GET/HEAD | uk/article/about | localiser-uk.about |
+| GET/HEAD | /                |                    |
+
+Дополнительный маршрут на главную станицу, дублирует страницу с локалью по умолчанию
+
+### Переведенные маршруты
+
+Вы можете перевести ваши маршруты.
+Например...
+
+http://example.com/en/article/about,
+http://example.com/ru/statya/o-nas (на русском)
+
+...будут перенаправлены на тот же контроллер/представление.
+
+Для надо создать файл переводов для соответствущих локалей, по умолчанию - `routes.php`, в котором задать перевод для каждого **сегмента** URL.
+
+Если совпадение не будет найдено, то сегмент останется прежним.
+
+Например
+```php
+// resources/lang/ru/routes.php
+return [
+     "article" => "statya",
+     "about" => "o-nas" ,
+];
+```
 
 ```php
-localizerRouter(
+// routes/web.php
+Route::localizedGroup([],
     function () {
-        Route::get('/about', 'Controller@metod')->name('about');
+        Route::get('article/about','Controller@metod')->name('about');
     }
 );
 ```
 
-Префикс языка по умолчанию в url скрывается.
+Создаст маршруты для предопределенных языков **en, ru**
 
-Отображение можно разрешить с помощью опции `hideDefaultLocaleInURL` в файле конфигурации.
+| Method   | URI              | Name               |
+| -------- | ---------------- | ------------------ |
+| GET/HEAD | en/article/about | localiser-ru.about |
+| GET/HEAD | ru/statya/o-nas  | localiser-ru.about |
 
-#### Переведенные маршруты
+**Обратите внимание - ни какого дополнительного кода для перевода маршрута не требуется.**
 
-Вы можете перевести ваши маршруты. Например, http://example.com/en/article/about, http://example.com/ru/statya/o-nas (на русском) будут перенаправлены на тот же контроллер/представление
+### Именованные маршруты
 
-```php
-// resources/lang/en/rout.php
-return [
-     "article/about" => "article/about" ,
-];
-```
+Именованные маршруты удобно получать с помощью хелпера:
 
 ```php
-// resources/lang/ru/rout.php
-return [
-     "article/about" => "statya/o-nas" ,
-];
+$url = t_route('about');
+$url = t_route('article', ['id'=>'24']); //с параметрами
+$url = t_route('article', [],'ru'); //с указаной локалью
 ```
 
-Делается это с помощью метода **transRoute()** класса **Localizer**;
+Это сокращает конструкцию, в которой необходимо указывать сложный префикс
 
 ```php
-app('localizerRouter')->group(function () {
-    Route::any(app('localizer')->transRoute('article/about'), 'Controller@metod')->name('about');
-});
+// $url = t_route('article', ['id'=>'24']);
+$url = route(app('localizer')->getNamePrefix() . app()->getLocale() . '.' .'article', ['id'=>'24']);
 ```
 
-Можно, также, использовать фасад **Localizer**
+### Настройки
+
+Настройки библиотеки находятся в файле конфигурации 'config/laravel-localizer.php'
+
+Локали определяются в секции 'supportedLocales' с помощью массива. Например:
 
 ```php
-app('localizerRouter')->group(function () {
-    Route::any(Localizer::transRoute('article/about'), 'Controller@metod')->name('about');
-});
+    'supportedLocales' => [
+        'uk'          => ['name' => 'Ukrainian', 'script' => 'Cyrl', 'native' => 'українська', 'regional' => 'uk_UA'],
+        'en'          => ['name' => 'English', 'script' => 'Latn', 'native' => 'English', 'regional' => 'en_GB'],
+        'ru'          => ['name' => 'Russian', 'script' => 'Cyrl', 'native' => 'русский', 'regional' => 'ru_RU'],
+    ],
 ```
 
-Если маршрут не имеет перевода, то остается тот, что указан.
+Язык по умолчанию будет первый в массиве.
 
-Структура маршрута и его перевода должны совпадать
+### Middleware
 
-```
-'article/about' => 'statya/o-nas', //ok
-'article/{id}' => 'statya/{id}', //ok
-'article/about' => 'statya', //Error
-'article/{id}' => 'statya/{article}', //Error
-'article/{id}' => 'statya/o-nas/{id}', //Error
-```
+Локаль приложения определяется с помощью мидлвара 'LocalizerMiddleware', по url.
 
-#### Именованные маршруты
+Сам мидлвар устанавливается автоматически в группу 'web'а
 
-Именованные маршруты используются с указанием локали, например:
-
-```php
-$url = route(app->getLocale() . '.' .'about');
-```
-
-Для удобства можно использовать хелпер `lroute()`
-
-```php
-$url = lroute('about');
-$url = lroute('article', ['id'=>'24']); //с параметрами
-$url = lroute('article', [],'ru'); //с указаной локалью
-```
-
-#### Локализация API
-
-Локализация API строится на параметре `lang` с помощью мидлвар LocalizationApi
-
-```php
-Route::middleware('VSamovarov\LaravelLocalizer\Middleware\LocalizationApi::class')->get('/article', 'Controller@metod');
-```
-
-или
-
-```php
-Route::middleware('LocalizationApi')->get('/article', 'Controller@metod');
-```
+**Ни каких дополнительных манипуляций с кодом не требуется**.
 
 ## License
 
