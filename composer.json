@@ -20,8 +20,11 @@
         "laravel/framework": "^6.0||^7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "6.0.*|^8.0",
         "orchestra/testbench": "^4.0"
+    },
+    "suggest": {
+        "ext-intl": "*"
     },
     "autoload": {
         "psr-4": {
@@ -34,11 +37,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-    },
-    "config": {
-        "sort-packages": true
+        "test": "vendor/bin/phpunit"
     },
     "extra": {
         "laravel": {
@@ -49,5 +48,7 @@
                 "Localizer": "VSamovarov\\LaravelLocalizer\\Facades\\Localizer"
             }
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

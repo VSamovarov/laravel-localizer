@@ -70,7 +70,7 @@ class RouteGroupLocalizer
      * @param RouteCollectionInterface $routes
      * @return boolean
      */
-    public function checkGroupNested(RouteCollectionInterface $routes): bool
+    private function checkGroupNested(RouteCollectionInterface $routes): bool
     {
         $locales = $this->localizer->getSlagsSupportedLocales();
         $matchPattern =  '{' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ').*[.]' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ')[.]' . '}';
