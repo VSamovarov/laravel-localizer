@@ -5,7 +5,6 @@ namespace VSamovarov\LaravelLocalizer;
 use Illuminate\Http\Request;
 use Illuminate\Routing\RouteCollectionInterface;
 use Illuminate\Routing\Router;
-use Illuminate\Translation\Translator;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use VSamovarov\LaravelLocalizer\Exceptions\NestedLocalizerRouteGroup;
 
@@ -70,7 +69,7 @@ class RouteGroupLocalizer
      * @param RouteCollectionInterface $routes
      * @return boolean
      */
-    private function checkGroupNested(RouteCollectionInterface $routes): bool
+    private function checkGroupNested($routes): bool
     {
         $locales = $this->localizer->getSlagsSupportedLocales();
         $matchPattern =  '{' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ').*[.]' . $this->localizer->getNamePrefix() . '(' . implode('|', $locales) . ')[.]' . '}';
