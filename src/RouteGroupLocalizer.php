@@ -89,7 +89,7 @@ class RouteGroupLocalizer
      * @param RouteCollectionInterface $routes
      * @return void
      */
-    public function addMainRoute(RouteCollectionInterface $routes): void
+    public function addMainRoute($routes): void
     {
         try {
             /**
@@ -123,7 +123,7 @@ class RouteGroupLocalizer
      * @param RouteCollectionInterface $routes
      * @return void
      */
-    public function translateRoutes(RouteCollectionInterface $routes): void
+    public function translateRoutes($routes): void
     {
         $prefix = $this->localizer->getNamePrefix();
         foreach ($routes as $route) {
