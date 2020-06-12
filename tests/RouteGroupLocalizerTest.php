@@ -2,16 +2,13 @@
 
 namespace Tests\Feature\Localizer;
 
-use Illuminate\Container\Container;
 use VSamovarov\LaravelLocalizer\Facades\Localizer as LocalizerFacade;
 use VSamovarov\LaravelLocalizer\LocalizerServiceProvider;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Routing\Router;
-use Illuminate\Http\Request;
 use Mockery as m;
 use VSamovarov\LaravelLocalizer\Localizer;
 use VSamovarov\LaravelLocalizer\RouteGroupLocalizer;
-use Illuminate\Routing\RouteCollection;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 
 class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
