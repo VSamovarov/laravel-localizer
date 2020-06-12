@@ -11,7 +11,7 @@ use VSamovarov\LaravelLocalizer\Localizer;
 use VSamovarov\LaravelLocalizer\RouteGroupLocalizer;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 
-class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
+class RouteGroupLocalizerTest extends \Orchestra\Testbench\BrowserKit\TestCase
 {
 
     protected $config = [
@@ -100,7 +100,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
             return $route->uri();
         })->toArray();
         $urlsEquals = [
-            "",
+            "/",
             "en",
             "en/about/home/article",
             "en/lorem/boo",
@@ -163,7 +163,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
             "ru",
             "ru/lorem/boo",
             "ru/о-нас/главная-страница/статья",
-            "",
+            "/",
         ];
         sort($urlsEquals);
         sort($urls);

@@ -107,7 +107,7 @@ class RouteGroupLocalizer
                 $this->route->namespace('\\')->group(function () use ($action) {
                     $action['prefix'] = '';
                     $action['as'] = '';
-                    $this->route->get('', $action);
+                    $this->route->get('/', $action);
                 });
             } catch (\Exception $e) {
                 //
