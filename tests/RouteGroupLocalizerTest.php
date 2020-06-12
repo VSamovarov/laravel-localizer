@@ -71,7 +71,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
 
 
         $groupLocalizer->routeGroupLocalizer([], function () use ($router) {
-            $router->get('')->name('home');
+            $router->get('/')->name('home');
             $router->get('lorem/boo')->name('to.too');
             $router->get('about/home/article')->name('article');
         });
@@ -125,7 +125,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
 
 
         $groupLocalizer->routeGroupLocalizer([], function () use ($router) {
-            $router->get('')->name('home');
+            $router->get('/')->name('home');
             $router->get('lorem/boo')->name('to.too');
             $router->get('about/home/article')->name('article');
         });
