@@ -54,7 +54,7 @@ class LocalizationTest extends \Orchestra\Testbench\TestCase
     {
         $config = $this->config;
 
-        //Поуазываем дефолтную локаль в урле
+        //Показываем дефолтную локаль в урле
         $config['hideDefaultLocaleInURL'] = false;
         $localizer = new Localizer($config);
         $localizer->setSupportedLocales($config['supportedLocales']);
@@ -70,5 +70,22 @@ class LocalizationTest extends \Orchestra\Testbench\TestCase
         $prefixes = array_keys($config['supportedLocales']);
         $prefixes[0] = '';
         $this->assertEquals(array_column($supportedLocales, 'prefix'), $prefixes);
+    }
+    public function testIsSupportedLocale()
+    {
+        $localizer = new Localizer($this->config);
+
+        $this->assertTrue($localizer->isSupportedLocale('en'));
+        $this->assertFalse($localizer->isSupportedLocale('fail'));
+    }
+
+    public function testSetLocale()
+    {
+        $localizer = new Localizer($this->config);
+        $localizer->setLocale('fail');
+        $this->assertEquals(app()->getLocale(), $localizer->getDefaultLocale());
+
+        $localizer->setLocale('en');
+        $this->assertEquals(app()->getLocale(), 'en');
     }
 }

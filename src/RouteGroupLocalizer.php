@@ -17,7 +17,7 @@ class RouteGroupLocalizer
     private $request;
 
 
-    public function __construct(Localizer $localizer, Translator $translator, Router $route, Request $request)
+    public function __construct(Localizer $localizer, TranslatorContract $translator, Router $route, Request $request)
     {
         $this->localizer = $localizer;
         $this->translator = $translator;
@@ -163,7 +163,6 @@ class RouteGroupLocalizer
             $newPart = $translator->get("{$group}.{$part}", [], $locale, false);
             return $newPart == "{$group}.{$part}" ? $part : $newPart;
         }, explode('/', $uri));
-
         return implode('/', $parts);
     }
 }
