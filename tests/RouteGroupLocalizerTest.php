@@ -100,7 +100,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
             return $route->uri();
         })->toArray();
         $urlsEquals = [
-            "/",
+            "",
             "en",
             "en/about/home/article",
             "en/lorem/boo",
@@ -163,7 +163,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
             "ru",
             "ru/lorem/boo",
             "ru/о-нас/главная-страница/статья",
-            "/",
+            "",
         ];
         sort($urlsEquals);
         sort($urls);
