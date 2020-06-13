@@ -1,16 +1,16 @@
 # Laravel localizator
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/vsamovarov/laravel-localizer.svg?style=flat-square)](https://packagist.org/packages/vsamovarov/laravel-localizer)
-[![Build Status](https://img.shields.io/travis/vsamovarov/laravel-localizer/master.svg?style=flat-square)](https://travis-ci.org/vsamovarov/laravel-localizer)
+[![Build Status](https://travis-ci.org/VSamovarov/laravel-localizer.svg?branch=master)](https://travis-ci.org/VSamovarov/laravel-localizer)
 [![Quality Score](https://img.shields.io/scrutinizer/g/vsamovarov/laravel-localizer.svg?style=flat-square)](https://scrutinizer-ci.com/g/vsamovarov/laravel-localizer)
 [![Total Downloads](https://img.shields.io/packagist/dt/vsamovarov/laravel-localizer.svg?style=flat-square)](https://packagist.org/packages/vsamovarov/laravel-localizer)
 
 Простая локализация Laravel. Значение локали извлекается из URL.
 
-- Переводимые маршруты
-- Возможность скрыть локаль по умолчанию в URL
-- Поддерживает кеширование
-- Поддержка именованных маршрутов
+-   Переводимые маршруты
+-   Возможность скрыть локаль по умолчанию в URL
+-   Поддерживает кеширование
+-   Поддержка именованных маршрутов
 
 ## Installation
 
@@ -21,9 +21,11 @@ composer require vsamovarov/laravel-localizer
 ```
 
 ... опции
+
 ```bash
 php artisan vendor:publish --provider="VSamovarov\LaravelLocalizer\LocalizerServiceProvider"
 ```
+
 ## Usage
 
 ### Группы для маршрутов
@@ -55,7 +57,6 @@ Route::localizedGroup([],
 | GET/HEAD | article/about    | localiser-en.about |
 | GET/HEAD | ru/article/about | localiser-ru.about |
 | GET/HEAD | uk/article/about | localiser-uk.about |
-
 
 Префикс языка в url по умолчанию скрывается.
 
@@ -90,6 +91,7 @@ http://example.com/ru/statya/o-nas (на русском)
 Если совпадение не будет найдено, то сегмент останется прежним.
 
 Например
+
 ```php
 // resources/lang/ru/routes.php
 return [

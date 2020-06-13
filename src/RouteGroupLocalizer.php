@@ -3,9 +3,9 @@
 namespace VSamovarov\LaravelLocalizer;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\RouteCollectionInterface;
 use Illuminate\Routing\Router;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
+use Illuminate\Routing\RouteCollection;
 use VSamovarov\LaravelLocalizer\Exceptions\NestedLocalizerRouteGroup;
 
 class RouteGroupLocalizer
@@ -66,7 +66,7 @@ class RouteGroupLocalizer
      * Если в нем несколько раз встречается префикс локализации,
      * значит группа вложенная
      *
-     * @param RouteCollectionInterface $routes
+     * @param RouteCollection $routes
      * @return boolean
      */
     private function checkGroupNested($routes): bool
@@ -86,7 +86,7 @@ class RouteGroupLocalizer
      * В миделваре примем решения, оставить дубль страницы
      * или делать редирект на страницу с указанием локали по умолчанию  - site.name/uk
      *
-     * @param RouteCollectionInterface $routes
+     * @param RouteCollection $routes
      * @return void
      */
     public function addMainRoute($routes): void
@@ -103,12 +103,8 @@ class RouteGroupLocalizer
             try {
                 $action = $routes->match($this->request->create('/' . $this->localizer->getDefaultLocale(), 'GET'))
                     ->getAction();
-
-                $this->route->namespace('\\')->group(function () use ($action) {
-                    $action['prefix'] = '';
-                    $action['as'] = '';
-                    $this->route->get('/', $action);
-                });
+                $action = array_merge($action, ['namespace' => '\\', 'prefix' => '', 'as' => '']);
+                $this->route->get('/', $action);
             } catch (\Exception $e) {
                 //
             }
@@ -120,7 +116,7 @@ class RouteGroupLocalizer
      *
      * Ищет роутеры с префиксом локалайзера и устанавливает новые (переведенные) урлы
      *
-     * @param RouteCollectionInterface $routes
+     * @param RouteCollection $routes
      * @return void
      */
     public function translateRoutes($routes): void

@@ -99,6 +99,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
         $urls = collect($router->getRoutes())->map(function ($route) {
             return $route->uri();
         })->toArray();
+
         $urlsEquals = [
             "/",
             "en",
@@ -148,6 +149,7 @@ class RouteGroupLocalizerTest extends \Orchestra\Testbench\TestCase
         ];
         sort($namesEquals);
         sort($names);
+
         $this->assertEquals($namesEquals, $names);
 
         $urls = collect($router->getRoutes())->map(function ($route) {

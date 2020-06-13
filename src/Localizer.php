@@ -140,7 +140,6 @@ class Localizer
     /**
      * Получить локаль
      *
-     * @param string $lang
      * @return string
      */
     public function getLocale(): string
