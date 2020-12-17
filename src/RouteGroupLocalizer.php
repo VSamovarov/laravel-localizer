@@ -35,7 +35,21 @@ class RouteGroupLocalizer
      */
     public function routeGroupLocalizer($attributes, $routes)
     {
-        foreach ($this->localizer->getSupportedLocales() as $lang) {
+      /**
+       * Роутеры с языком по умолчанию, должны быть в самом низу
+       * иначе не будет работать, когда локаль по умолчанию скрывается
+       * Сортируем соответствующим образом
+       */
+      $locales = [];
+      foreach($this->localizer->getSupportedLocales() as $lang) {
+            if($lang['slug'] === $this->localizer->getSupportedLocales() ) {
+                array_push ($locales,$lang);
+            } else {
+                array_unshift($locales,$lang);
+            }
+        }
+
+        foreach ($locales as $lang) {
             $this->route->group([
                 'prefix' => $lang['prefix'],
                 'as' =>  $this->localizer->getNamePrefix() . "{$lang['slug']}."
