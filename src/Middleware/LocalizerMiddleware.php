@@ -26,6 +26,9 @@ class LocalizerMiddleware
     public function handle($request, Closure $next)
     {
         $prefix = (string) $request->segment(1);
+        if($this->localizer->isHideDefaultLocaleInURL() && $prefix === $this->localizer->getDefaultLocale()) {
+          return redirect($this->getNonLocaleURL($request, $prefix));
+        }
         $this->setLocale($prefix);
 
         return $next($request);
@@ -44,5 +47,17 @@ class LocalizerMiddleware
         } else {
             $this->localizer->setLocale($this->localizer->getDefaultLocale());
         }
+    }
+    
+    /**
+     * Возвращает урл без префикса локали
+     *
+     * @param Request $request
+     * @param string $prefix
+     * @return string
+     */
+    private function getNonLocaleURL(Request $request, string $prefix): string
+    {
+      return preg_replace ("{^\/{$prefix}}", '', $request->getRequestUri());
     }
 }
